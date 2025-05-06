@@ -118,17 +118,16 @@
     }
 
     function drawComponents(vec, col) {
-      const offset = 10;
       const xComp = createVector(vec.x, 0);
       const yComp = createVector(0, vec.y);
       const endX = p5.Vector.add(origin, xComp);
-      const endY = p5.Vector.add(endX, yComp);
+      const endY = p5.Vector.add(origin, yComp);
 
       stroke(col);
       strokeWeight(1);
       drawingContext.setLineDash([5, 5]);
-      line(origin.x, origin.y, endX.x, endX.y); // x component
-      line(endX.x + offset, endX.y, endY.x + offset, endY.y); // y component
+      line(origin.x, endY.y, endX.x, endX.y); // x component
+      line(endX.x, origin.y, endY.x, endY.y); // y component
       drawingContext.setLineDash([]);
     }
 
