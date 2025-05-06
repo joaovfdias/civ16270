@@ -9,6 +9,10 @@
     #controls { padding: 10px; background: #f2f2f2; }
     button { margin-right: 10px; padding: 6px 12px; }
     canvas { display: block; }
+    #table-wrapper { padding: 10px; }
+    table { border-collapse: collapse; margin-top: 10px; }
+    td, th { border: 1px solid #aaa; padding: 6px 12px; text-align: center; }
+    th { background-color: #f0f0f0; }
   </style>
 </head>
 <body>
@@ -16,6 +20,35 @@
     <button onclick="showAComp = !showAComp">Toggle A Components</button>
     <button onclick="showBComp = !showBComp">Toggle B Components</button>
     <button onclick="showSumComp = !showSumComp">Toggle Sum Components</button>
+  </div>
+
+  <div id="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Vector</th>
+          <th>x-component</th>
+          <th>y-component</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>A</td>
+          <td id="ax">--</td>
+          <td id="ay">--</td>
+        </tr>
+        <tr>
+          <td>B</td>
+          <td id="bx">--</td>
+          <td id="by">--</td>
+        </tr>
+        <tr>
+          <td>A + B</td>
+          <td id="rx">--</td>
+          <td id="ry">--</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <script>
@@ -29,7 +62,7 @@
     let showSumComp = false;
 
     function setup() {
-      createCanvas(800, 600);
+      createCanvas(800, 500);
       origin = createVector(width/2, height/2);
       vecA = createVector(100, -80);
       vecB = createVector(80, 120);
@@ -54,6 +87,9 @@
       if (showAComp) drawComponents(vecA, color(0, 102, 204));
       if (showBComp) drawComponents(vecB, color(204, 102, 0));
       if (showSumComp) drawComponents(vecSum, color(255, 0, 0));
+
+      // Update HTML table values
+      updateComponentTable(vecA, vecB, vecSum);
     }
 
     function drawAxes() {
@@ -82,6 +118,7 @@
     }
 
     function drawComponents(vec, col) {
+      const offset = 10;
       const xComp = createVector(vec.x, 0);
       const yComp = createVector(0, vec.y);
       const endX = p5.Vector.add(origin, xComp);
@@ -91,8 +128,17 @@
       strokeWeight(1);
       drawingContext.setLineDash([5, 5]);
       line(origin.x, origin.y, endX.x, endX.y); // x component
-      line(endX.x, endX.y, endY.x, endY.y);     // y component
+      line(endX.x + offset, endX.y, endY.x + offset, endY.y); // y component
       drawingContext.setLineDash([]);
+    }
+
+    function updateComponentTable(a, b, sum) {
+      document.getElementById("ax").textContent = a.x.toFixed(1);
+      document.getElementById("ay").textContent = (-a.y).toFixed(1);  // y is inverted in canvas
+      document.getElementById("bx").textContent = b.x.toFixed(1);
+      document.getElementById("by").textContent = (-b.y).toFixed(1);
+      document.getElementById("rx").textContent = sum.x.toFixed(1);
+      document.getElementById("ry").textContent = (-sum.y).toFixed(1);
     }
 
     function mousePressed() {
