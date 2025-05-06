@@ -5,16 +5,28 @@
   <title>Interactive Vector Addition</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <style>
-    body { margin: 0; }
+    body { margin: 0; font-family: sans-serif; }
+    #controls { padding: 10px; background: #f2f2f2; }
+    button { margin-right: 10px; padding: 6px 12px; }
     canvas { display: block; }
   </style>
 </head>
 <body>
+  <div id="controls">
+    <button onclick="showAComp = !showAComp">Toggle A Components</button>
+    <button onclick="showBComp = !showBComp">Toggle B Components</button>
+    <button onclick="showSumComp = !showSumComp">Toggle Sum Components</button>
+  </div>
+
   <script>
     let origin;
     let vecA, vecB;
     let draggingA = false, draggingB = false;
     let handleRadius = 10;
+
+    let showAComp = false;
+    let showBComp = false;
+    let showSumComp = false;
 
     function setup() {
       createCanvas(800, 600);
@@ -32,27 +44,25 @@
       let vecSum = p5.Vector.add(vecA, vecB);
       let tipSum = p5.Vector.add(origin, vecSum);
 
-      // Draw vectors
       drawArrow(origin, tipA, color(0, 102, 204), 'A');
       drawArrow(origin, tipB, color(204, 102, 0), 'B');
       drawArrow(origin, tipSum, color(255, 0, 0), 'A + B');
 
-      // Drag handles
       fill(0, 102, 204); ellipse(tipA.x, tipA.y, handleRadius*2);
       fill(204, 102, 0); ellipse(tipB.x, tipB.y, handleRadius*2);
+
+      if (showAComp) drawComponents(vecA, color(0, 102, 204));
+      if (showBComp) drawComponents(vecB, color(204, 102, 0));
+      if (showSumComp) drawComponents(vecSum, color(255, 0, 0));
     }
 
     function drawAxes() {
-      stroke(200);
-      for (let x = 0; x < width; x += 40) {
-        line(x, 0, x, height);
-      }
-      for (let y = 0; y < height; y += 40) {
-        line(0, y, width, y);
-      }
+      stroke(220);
+      for (let x = 0; x < width; x += 40) line(x, 0, x, height);
+      for (let y = 0; y < height; y += 40) line(0, y, width, y);
       stroke(0);
-      line(0, height/2, width, height/2); // x-axis
-      line(width/2, 0, width/2, height);  // y-axis
+      line(0, height/2, width, height/2);
+      line(width/2, 0, width/2, height);
     }
 
     function drawArrow(base, vecEnd, col, label) {
@@ -71,22 +81,30 @@
       text(label, vecEnd.x + 5, vecEnd.y - 5);
     }
 
+    function drawComponents(vec, col) {
+      const xComp = createVector(vec.x, 0);
+      const yComp = createVector(0, vec.y);
+      const endX = p5.Vector.add(origin, xComp);
+      const endY = p5.Vector.add(endX, yComp);
+
+      stroke(col);
+      strokeWeight(1);
+      drawingContext.setLineDash([5, 5]);
+      line(origin.x, origin.y, endX.x, endX.y); // x component
+      line(endX.x, endX.y, endY.x, endY.y);     // y component
+      drawingContext.setLineDash([]);
+    }
+
     function mousePressed() {
       let tipA = p5.Vector.add(origin, vecA);
       let tipB = p5.Vector.add(origin, vecB);
-      if (dist(mouseX, mouseY, tipA.x, tipA.y) < handleRadius) {
-        draggingA = true;
-      } else if (dist(mouseX, mouseY, tipB.x, tipB.y) < handleRadius) {
-        draggingB = true;
-      }
+      if (dist(mouseX, mouseY, tipA.x, tipA.y) < handleRadius) draggingA = true;
+      else if (dist(mouseX, mouseY, tipB.x, tipB.y) < handleRadius) draggingB = true;
     }
 
     function mouseDragged() {
-      if (draggingA) {
-        vecA = createVector(mouseX - origin.x, mouseY - origin.y);
-      } else if (draggingB) {
-        vecB = createVector(mouseX - origin.x, mouseY - origin.y);
-      }
+      if (draggingA) vecA = createVector(mouseX - origin.x, mouseY - origin.y);
+      else if (draggingB) vecB = createVector(mouseX - origin.x, mouseY - origin.y);
     }
 
     function mouseReleased() {
