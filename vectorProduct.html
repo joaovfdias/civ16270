@@ -1,0 +1,49 @@
+function draw() {
+  background(240);
+  orbitControl();
+  strokeWeight(1);
+
+  drawAxes();
+
+  // Point
+  push();
+  fill(0, 100, 255);
+  translate(point.x, -point.y, point.z); // Cartesian y-axis correction
+  sphere(6);
+  pop();
+
+  // Vector
+  let start = createVector(vecPos.x, -vecPos.y, vecPos.z);
+  let end = p5.Vector.add(start, createVector(vecComp.x, -vecComp.y, vecComp.z));
+
+  // Draw vector line
+  stroke(255, 0, 0);
+  strokeWeight(3);
+  line(start.x, start.y, start.z, end.x, end.y, end.z);
+
+  // Draw arrowhead
+  drawArrowhead(start, end, color(255, 0, 0));
+
+  updateInputs();
+}
+
+function drawArrowhead(base, tip, col) {
+  let dir = p5.Vector.sub(tip, base);
+  let len = dir.mag();
+  dir.normalize();
+
+  push();
+  translate(tip.x, tip.y, tip.z);
+
+  // Calculate rotation angles
+  let theta = acos(dir.z);
+  let phi = atan2(dir.y, dir.x);
+
+  rotateZ(phi);
+  rotateY(-theta);
+
+  noStroke();
+  fill(col);
+  cone(6, 18); // radius, height
+  pop();
+}
