@@ -58,79 +58,80 @@
 
   function setup() {
     createCanvas(windowWidth, windowHeight - 100, WEBGL);
+    camera(400, -400, 400,   // eye position
+       0, 0, 0,          // center (look at origin)
+       0, -1, 0);        // up vector (invert Y for cartesian)
     updateInputs();
   }
 
   function draw() {
-  background(240);
-  orbitControl();
-  strokeWeight(1);
+    background(240);
+    orbitControl();
 
-  drawAxes();
+    drawAxes();
 
-  // Point
-  push();
-  fill(0, 100, 255);
-  translate(point.x, -point.y, point.z); // Cartesian y-axis correction
-  sphere(6);
-  pop();
+    // Draw point
+    push();
+    fill(0, 100, 255);
+    translate(point.x, -point.y, point.z);
+    sphere(6);
+    pop();
 
-  // Vector
-  let start = createVector(vecPos.x, -vecPos.y, vecPos.z);
-  let end = p5.Vector.add(start, createVector(vecComp.x, -vecComp.y, vecComp.z));
+    // Vector start and end positions
+    const start = createVector(vecPos.x, -vecPos.y, vecPos.z);
+    const vec = createVector(vecComp.x, -vecComp.y, vecComp.z);
+    const end = p5.Vector.add(start, vec);
 
-  // Draw vector line
-  stroke(255, 0, 0);
-  strokeWeight(3);
-  line(start.x, start.y, start.z, end.x, end.y, end.z);
-
-  // Draw arrowhead
-  drawArrowhead(start, end, color(255, 0, 0));
-
-  updateInputs();
-}
-
-function drawArrowhead(base, tip, col) {
-  let dir = p5.Vector.sub(tip, base);
-  let len = dir.mag();
-  dir.normalize();
-
-  push();
-  translate(tip.x, tip.y, tip.z);
-
-  // Calculate rotation angles
-  let theta = acos(dir.z);
-  let phi = atan2(dir.y, dir.x);
-
-  rotateZ(phi);
-  rotateY(-theta);
-
-  noStroke();
-  fill(col);
-  cone(6, 18); // radius, height
-  pop();
-}
-
-    // Vector
-    let end = createVector(
-      vecPos.x + vecComp.x,
-      vecPos.y + vecComp.y,
-      vecPos.z + vecComp.z
-    );
-
+    // Draw vector
     stroke(255, 0, 0);
     strokeWeight(3);
-    line(vecPos.x, -vecPos.y, vecPos.z, end.x, -end.y, end.z);
+    line(start.x, start.y, start.z, end.x, end.y, end.z);
 
+    // Draw arrowhead
+    drawArrowhead(start, end, color(255, 0, 0));
+    
     updateInputs();
   }
 
   function drawAxes() {
     strokeWeight(1);
-    stroke(200, 0, 0); line(0, 0, 0, 200, 0, 0); // X
-    stroke(0, 200, 0); line(0, 0, 0, 0, -200, 0); // Y (inverted)
-    stroke(0, 0, 200); line(0, 0, 0, 0, 0, 200); // Z
+    stroke(200, 0, 0); line(0, 0, 0, 200, 0, 0);   // X axis
+    stroke(0, 200, 0); line(0, 0, 0, 0, -200, 0);  // Y axis (inverted)
+    stroke(0, 0, 200); line(0, 0, 0, 0, 0, 200);   // Z axis
   }
+
+function drawArrowhead(start, end, col) {
+  const dir = p5.Vector.sub(end, start);
+  const len = dir.mag();
+  if (len === 0) return;
+
+  const x = dir.x / len;
+  const y = dir.y / len;
+  const z = dir.z / len;
+
+  // Build orthonormal basis (right, up, forward)
+  const forward = createVector(x, y, z);
+  const temp = abs(forward.y) < 0.99 ? createVector(0, 1, 0) : createVector(1, 0, 0); // avoid colinearity
+  const right = p5.Vector.cross(temp, forward).normalize();
+  const up = p5.Vector.cross(forward, right).normalize();
+
+  push();
+  translate(end.x, end.y, end.z);
+
+  // Construct rotation matrix to align +Y (default cone direction) with `dir`
+  applyMatrix(
+    right.x, right.y, right.z, 0,
+    forward.x, forward.y, forward.z, 0,
+    up.x, up.y, up.z, 0,
+    0,       0,       0,     1
+  );
+
+  noStroke();
+  fill(col);
+  translate(0, -8, 0); // move back along local Y to position arrowhead tip correctly
+  cone(6, 16);         // radius, height
+  pop();
+}
 
   function updateInputs() {
     point = createVector(
