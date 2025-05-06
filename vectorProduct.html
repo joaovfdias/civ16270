@@ -1,4 +1,67 @@
-function draw() {
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>3D Vector Tool</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    #inputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 10px;
+      background: #f4f4f4;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    input {
+      width: 80px;
+      padding: 4px;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div id="inputs">
+  <div class="input-group">
+    <label>Point (x, y, z)</label>
+    <input type="number" id="px" value="50">
+    <input type="number" id="py" value="50">
+    <input type="number" id="pz" value="50">
+  </div>
+  <div class="input-group">
+    <label>Vector Position (x, y, z)</label>
+    <input type="number" id="vx" value="0">
+    <input type="number" id="vy" value="0">
+    <input type="number" id="vz" value="0">
+  </div>
+  <div class="input-group">
+    <label>Vector Components (x, y, z)</label>
+    <input type="number" id="vcx" value="100">
+    <input type="number" id="vcy" value="0">
+    <input type="number" id="vcz" value="0">
+  </div>
+</div>
+
+<script>
+  let point, vecPos, vecComp;
+
+  function setup() {
+    createCanvas(windowWidth, windowHeight - 100, WEBGL);
+    updateInputs();
+  }
+
+  function draw() {
   background(240);
   orbitControl();
   strokeWeight(1);
@@ -47,3 +110,49 @@ function drawArrowhead(base, tip, col) {
   cone(6, 18); // radius, height
   pop();
 }
+
+    // Vector
+    let end = createVector(
+      vecPos.x + vecComp.x,
+      vecPos.y + vecComp.y,
+      vecPos.z + vecComp.z
+    );
+
+    stroke(255, 0, 0);
+    strokeWeight(3);
+    line(vecPos.x, -vecPos.y, vecPos.z, end.x, -end.y, end.z);
+
+    updateInputs();
+  }
+
+  function drawAxes() {
+    strokeWeight(1);
+    stroke(200, 0, 0); line(0, 0, 0, 200, 0, 0); // X
+    stroke(0, 200, 0); line(0, 0, 0, 0, -200, 0); // Y (inverted)
+    stroke(0, 0, 200); line(0, 0, 0, 0, 0, 200); // Z
+  }
+
+  function updateInputs() {
+    point = createVector(
+      parseFloat(document.getElementById('px').value),
+      parseFloat(document.getElementById('py').value),
+      parseFloat(document.getElementById('pz').value)
+    );
+    vecPos = createVector(
+      parseFloat(document.getElementById('vx').value),
+      parseFloat(document.getElementById('vy').value),
+      parseFloat(document.getElementById('vz').value)
+    );
+    vecComp = createVector(
+      parseFloat(document.getElementById('vcx').value),
+      parseFloat(document.getElementById('vcy').value),
+      parseFloat(document.getElementById('vcz').value)
+    );
+  }
+
+  function windowResized() {
+    resizeCanvas(windowWidth, windowHeight - 100);
+  }
+</script>
+</body>
+</html>
