@@ -17,18 +17,19 @@
 </head>
 <body>
   <div id="controls">
-    <button onclick="showAComp = !showAComp">Toggle A Components</button>
-    <button onclick="showBComp = !showBComp">Toggle B Components</button>
-    <button onclick="showSumComp = !showSumComp">Toggle Sum Components</button>
+    <button onclick="showAComp = !showAComp">Mostrar Componentes de A</button>
+    <button onclick="showBComp = !showBComp">Mostrar Componentes de B</button>
+    <button onclick="showSumComp = !showSumComp">Mostrar Componentes da Soma</button>
+    <button onclick="showPar = !showPar">Mostrar Paralelogramo</button>
   </div>
 
   <div id="table-wrapper">
     <table>
       <thead>
         <tr>
-          <th>Vector</th>
-          <th>x-component</th>
-          <th>y-component</th>
+          <th>Vetor</th>
+          <th>x</th>
+          <th>y</th>
         </tr>
       </thead>
       <tbody>
@@ -60,6 +61,7 @@
     let showAComp = false;
     let showBComp = false;
     let showSumComp = false;
+    let showPar = false;
 
     function setup() {
       createCanvas(800, 500);
@@ -81,12 +83,13 @@
       drawArrow(origin, tipB, color(204, 102, 0), 'B');
       drawArrow(origin, tipSum, color(255, 0, 0), 'A + B');
 
-      fill(0, 102, 204); ellipse(tipA.x, tipA.y, handleRadius*2);
-      fill(204, 102, 0); ellipse(tipB.x, tipB.y, handleRadius*2);
+      fill(0, 102, 204); ellipse(tipA.x, tipA.y, .5*handleRadius*2);
+      fill(204, 102, 0); ellipse(tipB.x, tipB.y,.5* handleRadius*2);
 
       if (showAComp) drawComponents(vecA, color(0, 102, 204));
       if (showBComp) drawComponents(vecB, color(204, 102, 0));
       if (showSumComp) drawComponents(vecSum, color(255, 0, 0));
+      if (showPar) drawPar(vecA,vecB,vecSum, color(100, 100, 100));
 
       // Update HTML table values
       updateComponentTable(vecA, vecB, vecSum);
@@ -129,6 +132,27 @@
       line(origin.x, endY.y, endX.x, endY.y); // x component
       line(endX.x, origin.y, endX.x, endY.y); // y component
       drawingContext.setLineDash([]);
+    }
+
+    function drawPar(vecA, vecB,vecSum, col){
+      
+
+      const nVecA = p5.Vector.add(origin,vecA)
+      const nVecB = p5.Vector.add(origin,vecB)
+      const nVecSum = p5.Vector.add(origin,vecSum)
+      const xa = nVecA.x
+      const ya = nVecA.y
+      const xb = nVecB.x
+      const yb = nVecB.y
+      const xs = nVecSum.x
+      const ys = nVecSum.y
+      stroke(col);
+      strokeWeight(1);
+      drawingContext.setLineDash([5, 5]);
+      line(xa, ya, xs, ys); // x component
+      line(xb, yb, xs, ys); // x component
+      drawingContext.setLineDash([]);
+
     }
 
     function updateComponentTable(a, b, sum) {
