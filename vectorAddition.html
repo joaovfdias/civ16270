@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Vector Addition Tool</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<script>
+let originL, originR;
+let vecP, vecQ, vecS;
+let draggingP = false, draggingQ = false, draggingS = false;
+let handleRadius = 10;
+
+function setup() {
+  createCanvas(900, 600);
+  originL = createVector(width / 4, height / 2);
+  originR = createVector((3 * width) / 4, height / 2);
+  vecP = createVector(100, -50);
+  vecQ = createVector(60, 100);
+  vecS = createVector(-80, 40);
+}
+
+function draw() {
+  background(255);
+  drawAxes(originL);
+  drawAxes(originR);
+
+  // --- LEFT SIDE: Vectors P, Q, S from origin ---
+  const tipP_L = p5.Vector.add(originL, vecP);
+  const tipQ_L = p5.Vector.add(originL, vecQ);
+  const tipS_L = p5.Vector.add(originL, vecS);
+
+  drawArrow(originL, tipP_L, color(0, 102, 204), "P");
+  drawArrow(originL, tipQ_L, color(0, 180, 0), "Q");
+  drawArrow(originL, tipS_L, color(204, 102, 0), "S");
+
+  drawHandle(tipP_L, color(0, 102, 204));
+  drawHandle(tipQ_L, color(0, 180, 0));
+  drawHandle(tipS_L, color(204, 102, 0));
+
+  // --- RIGHT SIDE: chained vectors ---
+  const baseP = originR;
+  const tipP = p5.Vector.add(baseP, vecP);
+  const tipQ = p5.Vector.add(tipP, vecQ);
+  const tipS = p5.Vector.add(tipQ, vecS);
+
+  drawArrow(baseP, tipP, color(0, 102, 204), "P");
+  drawArrow(tipP, tipQ, color(0, 180, 0), "Q");
+  drawArrow(tipQ, tipS, color(204, 102, 0), "S");
+
+  drawArrow(baseP, tipS, color(255, 0, 0), "R = P+Q+S");
+}
+
+function drawAxes(origin) {
+  stroke(200);
+  strokeWeight(1);
+
+  stroke(0);
+  strokeWeight(2);
+  line(origin.x - 100, origin.y, origin.x + 100, origin.y);
+  line(origin.x, origin.y - 100, origin.x, origin.y + 100);
+}
+
+function drawArrow(base, tip, col, label) {
+  push();
+  stroke(col);
+  fill(col);
+  strokeWeight(2);
+  line(base.x, base.y, tip.x, tip.y);
+  const angle = atan2(tip.y - base.y, tip.x - base.x);
+  translate(tip.x, tip.y);
+  rotate(angle);
+  triangle(0, 0, -10, 5, -10, -5);
+  pop();
+
+  noStroke();
+  fill(col);
+  textSize(14);
+  text(label, tip.x + 5, tip.y - 5);
+}
+
+function drawHandle(pos, col) {
+  fill(col);
+  noStroke();
+  ellipse(pos.x, pos.y, handleRadius);
+}
+
+function mousePressed() {
+  const tipP = p5.Vector.add(originL, vecP);
+  const tipQ = p5.Vector.add(originL, vecQ);
+  const tipS = p5.Vector.add(originL, vecS);
+  if (dist(mouseX, mouseY, tipP.x, tipP.y) < handleRadius) draggingP = true;
+  else if (dist(mouseX, mouseY, tipQ.x, tipQ.y) < handleRadius) draggingQ = true;
+  else if (dist(mouseX, mouseY, tipS.x, tipS.y) < handleRadius) draggingS = true;
+}
+
+function mouseDragged() {
+  if (draggingP) vecP = createVector(mouseX - originL.x, mouseY - originL.y);
+  else if (draggingQ) vecQ = createVector(mouseX - originL.x, mouseY - originL.y);
+  else if (draggingS) vecS = createVector(mouseX - originL.x, mouseY - originL.y);
+}
+
+function mouseReleased() {
+  draggingP = false;
+  draggingQ = false;
+  draggingS = false;
+}
+</script>
+</body>
+</html>
